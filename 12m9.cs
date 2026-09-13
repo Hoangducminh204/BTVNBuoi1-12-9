@@ -1,0 +1,219 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace QuanLyHinh
+{
+    // 1. Khai báo Interface
+    public interface IHinh
+    {
+        double GetDienTich();
+        double GetChuVi();
+        void Nhap();
+        void HienThi();
+    }
+
+    // 2. Lớp Hình Tròn
+    public class HinhTron : IHinh
+    {
+        private double banKinh;
+
+        // Khởi tạo có kiểm tra hợp lệ
+        public HinhTron(double r = 1.0)
+        {
+            banKinh = (r > 0) ? r : 1.0;
+        }
+
+        public void Nhap()
+        {
+            do
+            {
+                Console.Write("Nhap ban kinh hinh tron (> 0): ");
+                if (double.TryParse(Console.ReadLine(), out double r) && r > 0)
+                {
+                    banKinh = r;
+                    break;
+                }
+                Console.WriteLine("Ban kinh khong hop le. Vui long nhap lai!");
+            } while (true);
+        }
+
+        public double GetChuVi() => 2 * Math.PI * banKinh;
+
+        public double GetDienTich() => Math.PI * banKinh * banKinh;
+
+        public void HienThi()
+        {
+            Console.WriteLine($"[Hinh Tron] Ban kinh = {banKinh} | Chu vi = {GetChuVi():F2} | Dien tich = {GetDienTich():F2}");
+        }
+    }
+
+    // 3. Lớp Hình Chữ Nhật
+    public class HinhChuNhat : IHinh
+    {
+        private double chieuDai, chieuRong;
+
+        // Khởi tạo có kiểm tra hợp lệ
+        public HinhChuNhat(double d = 2.0, double r = 1.0)
+        {
+            if (d > 0 && r > 0)
+            {
+                chieuDai = d;
+                chieuRong = r;
+            }
+            else
+            {
+                chieuDai = 2.0;
+                chieuRong = 1.0;
+            }
+        }
+
+        public void Nhap()
+        {
+            do
+            {
+                Console.Write("Nhap chieu dai (> 0): ");
+                bool validD = double.TryParse(Console.ReadLine(), out double d);
+                Console.Write("Nhap chieu rong (> 0): ");
+                bool validR = double.TryParse(Console.ReadLine(), out double r);
+
+                if (validD && validR && d > 0 && r > 0)
+                {
+                    chieuDai = d;
+                    chieuRong = r;
+                    break;
+                }
+                Console.WriteLine("Kich thuoc khong hop le. Vui long nhap lai!");
+            } while (true);
+        }
+
+        public double GetChuVi() => 2 * (chieuDai + chieuRong);
+
+        public double GetDienTich() => chieuDai * chieuRong;
+
+        public void HienThi()
+        {
+            Console.WriteLine($"[Hinh Chu Nhat] Dai = {chieuDai}, Rong = {chieuRong} | Chu vi = {GetChuVi():F2} | Dien tich = {GetDienTich():F2}");
+        }
+    }
+
+    // 4. Lớp Hình Tam Giác
+    public class HinhTamGiac : IHinh
+    {
+        private double a, b, c;
+
+        // Kiểm tra 3 cạnh hợp lệ
+        public bool IsTamGiac(double canha, double canhb, double canhc)
+        {
+            return (canha > 0 && canhb > 0 && canhc > 0 &&
+                   (canha + canhb > canhc) &&
+                   (canha + canhc > canhb) &&
+                   (canhb + canhc > canha));
+        }
+
+        // Khởi tạo
+        public HinhTamGiac(double a = 3.0, double b = 4.0, double c = 5.0)
+        {
+            if (IsTamGiac(a, b, c))
+            {
+                this.a = a; this.b = b; this.c = c;
+            }
+            else
+            {
+                this.a = 3.0; this.b = 4.0; this.c = 5.0; // Mặc định
+            }
+        }
+
+        public void Nhap()
+        {
+            do
+            {
+                Console.Write("Nhap canh a: ");
+                double.TryParse(Console.ReadLine(), out double ta);
+                Console.Write("Nhap canh b: ");
+                double.TryParse(Console.ReadLine(), out double tb);
+                Console.Write("Nhap canh c: ");
+                double.TryParse(Console.ReadLine(), out double tc);
+
+                if (IsTamGiac(ta, tb, tc))
+                {
+                    a = ta; b = tb; c = tc;
+                    break;
+                }
+                Console.WriteLine("3 canh vua nhap khong tao thanh tam giac hop le. Vui long nhap lai!");
+            } while (true);
+        }
+
+        public double GetChuVi() => a + b + c;
+
+        public double GetDienTich()
+        {
+            // Công thức Heron
+            double p = GetChuVi() / 2;
+            return Math.Sqrt(p * (p - a) * (p - b) * (p - c));
+        }
+
+        public void HienThi()
+        {
+            Console.WriteLine($"[Hinh Tam Giac] 3 Canh = ({a}, {b}, {c}) | Chu vi = {GetChuVi():F2} | Dien tich = {GetDienTich():F2}");
+        }
+    }
+
+    // 5. Lớp chạy chương trình chính
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Dùng List interface để quản lý các hình, thể hiện tính đa hình
+            List<IHinh> danhSachHinh = new List<IHinh>();
+            int luaChon;
+
+            Console.WriteLine("--- CHUONG TRINH QUAN LY HINH (C#) ---");
+            Console.WriteLine("1. Them Hinh Tron");
+            Console.WriteLine("2. Them Hinh Chu Nhat");
+            Console.WriteLine("3. Them Hinh Tam Giac");
+            Console.WriteLine("0. Ket thuc nhap va hien thi ket qua");
+
+            do
+            {
+                Console.Write("\nNhap lua chon cua ban: ");
+                if (!int.TryParse(Console.ReadLine(), out luaChon)) continue;
+
+                IHinh h = null;
+
+                switch (luaChon)
+                {
+                    case 1:
+                        h = new HinhTron();
+                        break;
+                    case 2:
+                        h = new HinhChuNhat();
+                        break;
+                    case 3:
+                        h = new HinhTamGiac();
+                        break;
+                    case 0:
+                        break;
+                    default:
+                        Console.WriteLine("Lua chon khong hop le!");
+                        continue;
+                }
+
+                if (h != null)
+                {
+                    h.Nhap(); // Tính đa hình: Gọi đúng hàm Nhap() của lớp cụ thể
+                    danhSachHinh.Add(h);
+                }
+
+            } while (luaChon != 0);
+
+            Console.WriteLine("\n--- DANH SACH CAC HINH VUA NHAP ---");
+            foreach (IHinh h in danhSachHinh)
+            {
+                // Tính đa hình: Gọi đúng hàm HienThi(), GetChuVi(), GetDienTich()
+                h.HienThi();
+            }
+
+            Console.ReadLine(); // Dừng màn hình để xem kết quả
+        }
+    }
+}
