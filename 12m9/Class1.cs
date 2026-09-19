@@ -1,0 +1,41 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+public class Program
+{
+    public static void Main()
+    {
+        // 1. Tạo một sinh viên với dữ liệu cố tình bị sai
+        Student student = new Student
+        {
+            Id = "12345",         // Sai: Ít hơn 8 ký tự
+            FullName = "Bo",      // Sai: Ít hơn 3 ký tự
+            Email = "email_sai",  // Sai: Không đúng chuẩn email
+            Score = 11,           // Sai: Vượt quá khoảng 0-10
+            Major = "Công nghệ thông tin"   
+        };
+
+        // 2. Thiết lập Context để kiểm tra
+        ValidationContext context = new ValidationContext(student, null, null);
+        List<ValidationResult> results = new List<ValidationResult>();
+
+        // 3. Thực hiện Validate
+        bool isValid = Validator.TryValidateObject(student, context, results, true);
+
+        if (!isValid)
+        {
+            Console.WriteLine("DỮ LIỆU KHÔNG HỢP LỆ. CÁC LỖI SAU:");
+            foreach (var validationResult in results)
+            {
+                Console.WriteLine($"- {validationResult.ErrorMessage}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Dữ liệu hợp lệ!");
+            Console.WriteLine(student.ToString());
+            Console.WriteLine("Trạng thái: " + (student.IsPassed() ? "Đậu" : "Rớt"));
+        }
+    }
+}
